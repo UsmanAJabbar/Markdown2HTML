@@ -2,6 +2,8 @@
 """Markdown 2 HTML"""
 from sys import argv, stderr
 import os
+tags = {'open': {'#': '<h{}>', '-': '<ul>', '*': '<ol>'},
+        'closed': {'__': '<em>', '**': '<b>', '[[{}]]': '{}'}}
 
 
 def md_to_html(md_file, html_file):
@@ -16,29 +18,10 @@ def md_to_html(md_file, html_file):
         @md_file: input markdown file name
         @html_file: output HTML file name
     """
-    def tag(line):
-        tags = {'open': {'#': '<h{}>', '-': '<ul>', '*': '<ol>'},
-                'closed': {'__': '<em>', '**': '<b>', '[[{}]]': '{}'}}
-        fmted = line
-        md_char_count = {'__': (int(line.count('__') / 2)),
-                         '**': (int(line.count('**') / 2)), 
-                         '[[': (int(line.count('[[') / 2))}
-        print(md_char_count)
-        for char in md_char_count.keys():
-            for times in range(md_char_count[char]):
-                otag = tags['closed'][char]
-                ctag = otag[0] + '/' + otag[1:]
-                fmted = fmted.replace(char, otag, 1)
-                fmted = fmted.replace(char, ctag, 1)
-        print(fmted)
-        return fmted
-
     with open(md, 'r') as md_file:
         md_content = md_file.readlines()
 
         htmled, li_tags, md_chars = [], [], []
-        tags = {'open': {'#': '<h{}>', '-': '<ul>', '*': '<ol>'},
-                'closed': {'__': '<em>', '**': '<b>', '[[{}]]': '{}'}}
 
         for index in range(len(md_content)):
             line = md_content[index]
@@ -53,7 +36,7 @@ def md_to_html(md_file, html_file):
                 otag = tags['open'][md_char]
                 ctag = otag[0] + '/' + otag[1:]
                 text = line[2:-1]
-                li = '\t<li>' + tag(text) + '</li>'
+                li = '\t<li>' + formatter(text) + '</li>'
                 li_tags += [li]
 
                 if index + 1 == len(md_content) or md_content[index + 1][0] not in ['-', '*']:
@@ -62,13 +45,38 @@ def md_to_html(md_file, html_file):
                     li_tags = []
             else:
                 if len(line) > 0:
-                    text = tag(line)
+                    text = formatter(line)
                     p = '<p>{}</p>'.format(text)
                     htmled += [p]
 
         with open(html, 'w') as html_file:
             for strings in htmled:
                 html_file.writelines(strings + '\n')
+
+def formatter(text):
+    """
+    -----------------
+    HELPER: formatter
+    -----------------
+    Description:
+        Helper function that adds and replaces
+        the necessary format tags regardless of
+        how many times they may occur on a single
+        line.
+    Args:
+        @text: input string with GitHub-like markdown
+    """
+    fmted = text
+    md_char_count = {'__': (int(text.count('__') / 2)),
+                     '**': (int(text.count('**') / 2)),
+                     '[[': (int(text.count('[[') / 2))}
+    for char in md_char_count.keys():
+        for times in range(md_char_count[char]):
+            otag = tags['closed'][char]
+            ctag = otag[0] + '/' + otag[1:]
+            fmted = fmted.replace(char, otag, 1)
+            fmted = fmted.replace(char, ctag, 1)
+    return fmted
 
 if __name__ == "__main__":
     if len(argv) < 2:
