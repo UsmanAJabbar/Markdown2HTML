@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 """Markdown 2 HTML"""
-from sys import argv
-from sys import stderr
+from sys import argv, stderr
 import os
+
 
 def md_to_html(md_file, html_file):
     """
@@ -20,25 +20,30 @@ def md_to_html(md_file, html_file):
         md_content = md_file.readlines()
 
         htmled = []
-        md_chars = ['#', '-', '*', '**', '__', '[[' ']]', '((', '))']
+        li_tags = []
+        tags = {'open': {'#': '<h{}>', '-': '<ul>', '*': '<ol>'},
+                'closed': {'__': '<em>', '**': '<b>', '[[{}]]': '{}'}}
 
-        for line in md_content:
-            if line[0] in md_chars:
-                md_char = line[0]
-                md_char_count = 0
-                md_area = line[0:5] if len(line) > 5 else line
+        for index in range(len(md_content)):
+            line = md_content[index]
+            md_char = line.split(' ')[0]
 
-                if md_char in md_chars:
-                    for chars in md_area:
-                        md_char_count += 1 if chars == md_char else 0
-                    if md_char == '#':
-                        text = line.replace('#', '')[1:-1]
-                        heading = '<h{}>{}</h{}>'.format(md_char_count, text, md_char_count)
-                        htmled += [heading]
-                else:
-                    if len(line) > 0:
-                        p = '<p>{}</p>'.format(line)
-                        htmled += [p]
+            if '#' in md_char:
+                text = line[len(md_char)+1:-1]
+                heading = '<h{}>{}</h{}>'.format(len(md_char), text, len(md_char))
+                htmled += [heading]
+
+            elif '*' or '-' in md_char:
+                otag = tags['open'][md_char]
+                ctag = otag[0] + '/' + otag[1:]
+                text = line[2:-1]
+                li = '\t<li>' + text + '</li>'
+                li_tags += [li]
+
+                if index + 1 == len(md_content) or md_content[index + 1][0] not in ['-', '*']:
+                    list_html = [otag] + li_tags + [ctag]
+                    htmled += list_html
+                    li_tags = []
 
         with open(html, 'w') as html_file:
             for strings in htmled:
