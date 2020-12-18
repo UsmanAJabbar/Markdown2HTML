@@ -18,21 +18,22 @@ def md_to_html(md_file, html_file):
         @md_file: input markdown file name
         @html_file: output HTML file name
     """
-    with open(md, 'r') as md_file:
+    with open(md_file, 'r') as md_file:
         md_content = md_file.readlines()
 
-        htmled, li_tags, md_chars = [], [], []
+        htmled, li_tags = [], []
 
         for index in range(len(md_content)):
             line = md_content[index]
             md_char = line.split(' ')[0]
+            md_char = md_char if md_char[-1] != '\n' else md_char[-1]
 
             if '#' in md_char:
                 text = line[len(md_char)+1:-1]
                 heading = '<h{}>{}</h{}>'.format(len(md_char), text, len(md_char))
                 htmled += [heading]
 
-            elif md_char[0] in ['-', '*']:
+            elif md_char not in ['*', '-']:
                 otag = tags['open'][md_char]
                 ctag = otag[0] + '/' + otag[1:]
                 text = line[2:-1]
@@ -44,12 +45,12 @@ def md_to_html(md_file, html_file):
                     htmled += list_html
                     li_tags = []
             else:
-                if len(line) > 0:
+                if len(line) > 1:
                     text = formatter(line)
                     p = '<p>{}</p>'.format(text)
                     htmled += [p]
 
-        with open(html, 'w') as html_file:
+        with open(html_file, 'w') as html_file:
             for strings in htmled:
                 html_file.writelines(strings + '\n')
 
