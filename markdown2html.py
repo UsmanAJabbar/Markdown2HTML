@@ -3,7 +3,7 @@
 from sys import argv, stderr
 import os
 tags = {'open': {'#': '<h{}>', '-': '<ul>', '*': '<ol>'},
-        'closed': {'__': '<em>', '**': '<b>', '[[{}]]': '{}'}}
+        'closed': {'__': '<em>', '**': '<b>', '[[': '{}'}}
 
 
 def md_to_html(md_file, html_file):
@@ -24,7 +24,6 @@ def md_to_html(md_file, html_file):
         htmled, li_tags = [], []
 
         for index in range(len(md_content)):
-            print(htmled)
             line = md_content[index]
             md_char = line.split(' ')[0]
             md_char = md_char if md_char[-1] != '\n' else md_char[-1]
