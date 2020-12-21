@@ -2,8 +2,9 @@
 """Markdown 2 HTML"""
 from sys import argv, stderr
 import os
-tags = {'open': {'#': '<h{}>', '-': '<ul>', '*': '<ol>'},
-        'closed': {'__': '<em>', '**': '<b>', '[[': '{}'}}
+tags = {'open': {'-': '<ul>', '*': '<ol>'},
+        'closed': {'__': '<em>', '**': '<b>'},
+        'funcs': {'[[': '{}', '((': '{}'}}
 
 
 def md_to_html(md_file, html_file):
@@ -21,7 +22,7 @@ def md_to_html(md_file, html_file):
     with open(md_file, 'r') as md_file:
         md_content = md_file.readlines()
 
-        htmled, li_tags = [], []
+        htmled, li_tags, fmted_strs = [], [], []
 
         for index in range(len(md_content)):
             line = md_content[index]
@@ -45,10 +46,16 @@ def md_to_html(md_file, html_file):
                     htmled += list_html
                     li_tags = []
             else:
-                if len(line) > 1:
-                    text = formatter(line)
-                    p = '<p>{}</p>'.format(text)
-                    htmled += [p]
+                text = formatter(line)
+                if text != '\n':
+                    fmted_strs += ['\t' + text[:-1]]
+
+                    if index + 1 == len(md_content) or md_content[index + 1] == '\n':
+                        p_html = ['<p>'] + fmted_strs + ['</p>']
+                        htmled += p_html
+                        fmted_strs = []
+                    else:
+                        fmted_strs += ['<br>']
 
         with open(html_file, 'w') as html_file:
             for strings in htmled:
@@ -70,7 +77,8 @@ def formatter(text):
     fmted = text
     md_char_count = {'__': (int(text.count('__') / 2)),
                      '**': (int(text.count('**') / 2)),
-                     '[[': (int(text.count('[[') / 2))}
+                     '[[': (int(text.count('[[') / 2)),
+                     '((': (int(text.count('((') / 2))}
     for char in md_char_count.keys():
         for times in range(md_char_count[char]):
             otag = tags['closed'][char]
