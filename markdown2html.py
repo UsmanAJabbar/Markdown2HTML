@@ -31,7 +31,7 @@ def md_to_html(md_file, html_file):
 
             if '#' in md_char:
                 text = line[len(md_char)+1:-1]
-                heading = '<h{}>{}</h{}>'.format(len(md_char), text, len(md_char))
+                heading = '<h{}>{}</h{}>'.format(len(md_char), formatter(text), len(md_char))
                 htmled += [heading]
 
             elif md_char == '*' or md_char == '-':
