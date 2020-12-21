@@ -24,6 +24,7 @@ def md_to_html(md_file, html_file):
         htmled, li_tags = [], []
 
         for index in range(len(md_content)):
+            print(htmled)
             line = md_content[index]
             md_char = line.split(' ')[0]
             md_char = md_char if md_char[-1] != '\n' else md_char[-1]
@@ -33,7 +34,7 @@ def md_to_html(md_file, html_file):
                 heading = '<h{}>{}</h{}>'.format(len(md_char), text, len(md_char))
                 htmled += [heading]
 
-            elif md_char not in ['*', '-']:
+            elif md_char == '*' or md_char == '-':
                 otag = tags['open'][md_char]
                 ctag = otag[0] + '/' + otag[1:]
                 text = line[2:-1]
@@ -91,3 +92,4 @@ if __name__ == "__main__":
         exit(1)
 
     md_to_html(md, html)
+    exit(0)
