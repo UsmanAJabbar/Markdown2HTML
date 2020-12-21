@@ -81,14 +81,14 @@ def formatter(text):
     return fmted
 
 if __name__ == "__main__":
-    if len(argv) < 2:
-        stderr.write('Usage: ./markdown2html.py README.md README.html')
+    if len(argv) != 3:
+        stderr.write('Usage: ./markdown2html.py README.md README.html' + '\n')
         exit(1)
 
     md, html = argv[1], argv[2]
 
     if not os.path.isfile(md):
-        stderr.write('Missing {}'.format(md))
+        stderr.write('Missing {}'.format(md + '\n'))
         exit(1)
 
     md_to_html(md, html)
