@@ -27,21 +27,23 @@ def md_to_html(md_file, html_file):
 
         for index in range(len(md_content)):
             line = md_content[index]
+            last_line = len(md_content)
+            next_line = index + 1
             md_char = line.split(' ')[0].rstrip('\n')
 
             if '#' in md_char:
                 text = line[len(md_char)+1:-1]
-                heading = '<h{}>{}</h{}>'.format(len(md_char), formatter(text), len(md_char))
-                htmled += [heading]
+                h_tag = '<h{}>{}</h{}>'.format(len(md_char), formatter(text), len(md_char))
+                htmled += [h_tag]
 
             elif md_char == '*' or md_char == '-':
-                otag = tags['open'][md_char]
-                ctag = otag[0] + '/' + otag[1:]
                 text = line[2:-1]
                 li = '\t<li>' + formatter(text) + '</li>'
                 li_tags += [li]
 
-                if index + 1 == len(md_content) or md_content[index + 1][0] not in ['-', '*']:
+                if next_line is last_line or md_content[next_line][0] not in ['-', '*']:
+                    otag = tags['open'][md_char]
+                    ctag = otag[0] + '/' + otag[1:]
                     list_html = [otag] + li_tags + [ctag]
                     htmled += list_html
                     li_tags = []
@@ -50,7 +52,7 @@ def md_to_html(md_file, html_file):
                 if text != '\n':
                     fmted_strs += ['\t' + text.rstrip('\n')]
 
-                    if index + 1 == len(md_content) or md_content[index + 1] == '\n':
+                    if next_line is last_line or md_content[next_line] == '\n':
                         p_html = ['<p>'] + fmted_strs + ['</p>']
                         htmled += p_html
                         fmted_strs = []
