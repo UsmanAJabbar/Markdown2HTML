@@ -82,26 +82,25 @@ def formatter(text):
                      '[[': (int(text.count('[['))),
                      '((': (int(text.count('((')))}
 
-    for char in md_char_count.keys():
-        for times in range(md_char_count[char]):
-            if char == '[[' or char == '((':
-                yeet = fmted.split()
-                op_idx = [idx for idx, string in enumerate(yeet) if char in string][0]
-                cl_idx = [idx for idx, string in enumerate(yeet) if tags['opp'][char] in string][0] + 1
-                extract = ' '.join(yeet[op_idx:cl_idx])[2:-2]
+    for md_char in md_char_count.keys():
+        for times in range(md_char_count[md_char]):
+            if md_char in tags['opp'].keys():
+                op_idx = fmted.find(md_char) + 2
+                cl_idx = fmted.find(tags['opp'][md_char])
+                extract = fmted[op_idx:cl_idx]
 
-                if char == '[[' and char in fmted and ']]' in fmted:
+                if md_char == '[[' and '[[' in fmted and ']]' in fmted:
                     poof_or_hashed = str2hash(extract.encode('UTF-8')).hexdigest()
-                elif char == '((' and char in fmted and '))' in fmted:
+                elif md_char == '((' and '((' in fmted and '))' in fmted:
                     poof_or_hashed = extract.replace('C', '').replace('c', '')
 
-                final = yeet[:op_idx] + [poof_or_hashed] + yeet[cl_idx:]
-                fmted = ' '.join(final)
+                fmted = fmted[:op_idx-2] + poof_or_hashed + fmted[cl_idx+2:]
+
             else:
-                otag = tags['closed'][char]
+                otag = tags['closed'][md_char]
                 ctag = otag[0] + '/' + otag[1:]
-                fmted = fmted.replace(char, otag, 1)
-                fmted = fmted.replace(char, ctag, 1)
+                fmted = fmted.replace(md_char, otag, 1)
+                fmted = fmted.replace(md_char, ctag, 1)
     return fmted
 
 if __name__ == "__main__":
